@@ -11,8 +11,8 @@
     "elife-utils": "everlifeai/elife-utils",
     "puppeteer": "^0.13.0"
   },
-  "metaData":{
-    "authRequired":true,
-    "msg":"Enter your twitter Crediential"
+  "metaData": {
+    "authRequired": true,
+    "msg": "Enter your twitter credientials"
   }
 }
