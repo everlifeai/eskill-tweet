@@ -29,14 +29,14 @@ const levelDBClient = new cote.Requester({
 })
 
 let auth
-function loadCrediential(){
-    let commonerr = 'Twitter Job will not work'
-    let errmsg = {
-        LEVELERR: `Error retriving your twitter credentials! If you have not set them, please do so by clicking skill tab and eskill-tweet otherwise ${commonerr}`,
-        DECRYPTERR: `Error decrypting your twitter credentials! ${commonerr}`,
-        PARSEERR: `Error loading your twitter credentials! ${commonerr}`,
-    }
+const commonerr = 'Twitter Job will not work'
+const errmsg = {
+    LEVELERR: `Error retriving your twitter credentials! If you have not set them, please do so by clicking skill tab and eskill-tweet otherwise ${commonerr}`,
+    DECRYPTERR: `Error decrypting your twitter credentials! ${commonerr}`,
+    PARSEERR: `Error loading your twitter credentials! ${commonerr}`,
+}
 
+function loadCrediential(){
     levelDBClient.send({type:'get',  key: 'eskill-tweet'},(err, data) => {
         if(err) {
             u.showErr(err)
@@ -94,25 +94,40 @@ function startMicroservice() {
         if(!req.msg) return cb()
         if(!req.msg.startsWith('/tweet')) return cb()
         cb(null, true)
-        util.tweet(auth.username, auth.password,'Hello')
-            .then((result)=>{
-                sendReply(JSON.stringify(result), req)
-            })
-            .catch((err) => {
-                u.showErr(err)
-                sendReply('Tweet failed..', req)
-            })
+        if(!auth || !auth.username || !auth.password) sendReply(errmsg.LEVELERR, req)
+        else {
+            let tweet_msg = req.msg.substr('/tweet'.length).trim() 
+            if(tweet_msg.length > 280) {
+                sendReply('Tweet message character limit exists. Try with a different message.',req)
+            }else {
+                util.tweet(auth.username, auth.password, tweet_msg)
+                    .then((result) => {
+                        if(result && result.success)
+                            sendReply("Tweeted successfully.", req)
+                        else 
+                            sendReply('Tweet failed.', req)
+                    })
+                    .catch((err) => {
+                        u.showErr(err)
+                        sendReply('Tweet failed..', req)
+                    })
+            }
+        }
+        
     })
 
     svc.on('task', (req, cb) => { 
-        util.tweet(auth.username, auth.password, util.getTweetMsg(req.task))
-            .then((result)=>{
-                cb(null, req.task, result)
-            })
-            .catch((err) => {
-                u.showErr(err)
-                cb('Something went wrong.')
-            })
+        if(!auth || !auth.username || !auth.password) cb('Twitter credentials missing.')
+        else{
+            util.tweet(auth.username, auth.password, util.getTweetMsg(req.task))
+                .then((result)=>{
+                    cb(null, req.task, result)
+                })
+                .catch((err) => {
+                    u.showErr(err)
+                    cb('Something went wrong.')
+                })
+        }
     })
 }
 
