@@ -92,17 +92,16 @@ function startMicroservice() {
      */
     svc.on('msg', (req, cb) => {
         if(!req.msg) return cb()
-        if(req.msg.startsWith('/tweet')){
-            cb(null, true)
-            util.tweet(auth.username, auth.password,'Hello')
-                .then((result)=>{
-                    sendReply(JSON.stringify(result), req)
-                })
-                .catch((err) => {
-                    u.showErr(err)
-                    sendReply('Tweet failed..', req)
-                })
-        }
+        if(!req.msg.startsWith('/tweet')) return cb()
+        cb(null, true)
+        util.tweet(auth.username, auth.password,'Hello')
+            .then((result)=>{
+                sendReply(JSON.stringify(result), req)
+            })
+            .catch((err) => {
+                u.showErr(err)
+                sendReply('Tweet failed..', req)
+            })
     })
 
     svc.on('task', (req, cb) => { 
