@@ -1,15 +1,16 @@
 const puppeteer = require('puppeteer')
 /**
  *      /outcome
- * Tweet given text and returns tweet id
+ * Tweet given comment and returns comment id
  * @param {*} userID 
  * @param {*} pwd 
- * @param {*} tweetText 
+ * @param {*} statusId 
+ * @param {*} tweetComment 
  */
-async function tweet (userID, pwd, tweetText) {
+async function commentTweet (userID, pwd,statusId,tweetComment) {
   let data = {}
 
-  let browser = await puppeteer.launch({ headless: false, slowMo: 100, args: ['--no-sandbox'] })
+  let browser = await puppeteer.launch({ headless: true, slowMo: 100, args: ['--no-sandbox'] })
   let page = await browser.newPage()
   try {
     await page.setViewport({ width: 1920, height: 1080 })
@@ -30,22 +31,20 @@ async function tweet (userID, pwd, tweetText) {
     await page.waitForSelector(submitButton)
     await page.click(submitButton)
     await page.waitFor(1000 * 12)
+   
+    //for adding a comment
+    await page.goto(statusId)
+    const comment ="div.css-1dbjc4n.r-sdzlij.r-1p0dtai.r-xoduu5.r-1d2f490.r-xf4iuw.r-u8s1d.r-zchlnj.r-ipm5af.r-o7ynqc.r-6416eg"
+    await page.waitForSelector(comment)
+    await page.click(comment)
 
-    // For clicking tweetbox
+    const add_comment ='div.notranslate.public-DraftEditor-content'
+    await page.waitForSelector(add_comment)
+    await page.click(add_comment)
+    await page.type(add_comment,tweetComment)
 
-    await page.waitFor(3000)
-    const tweetButton = 'div.css-901oao.r-1awozwy.r-jwli3a.r-6koalj.r-18u37iz.r-16y2uox.r-1qd0xha.r-a023e6.r-vw2c0b.r-1777fci.r-eljoum.r-dnmrzs.r-bcqeeo.r-q4m81j.r-qvutc0'
-    await page.waitForSelector(tweetButton)
-    await page.click(tweetButton)
-    await page.waitForSelector('div.DraftEditor-editorContainer')
-
-    const wait = 'div.public-DraftStyleDefault-block.public-DraftStyleDefault-ltr'
-    await page.waitForSelector(wait)
-    await page.click(wait)
-    await page.type(wait, tweetText)
-
-    const status = 'div.css-18t94o4.css-1dbjc4n.r-urgr8i.r-42olwf.r-sdzlij.r-1phboty.r-rs99b7.r-1w2pmg,r-1n0xq6e.r-1vuscfd.r-1dhvaqw.r-1fneopy.r-o7ynqc.r-6416eg .r-lrvibr'
-    await page.click(status)
+    const status = 'div.css-901oao.r-1awozwy.r-jwli3a.r-6koalj.r-18u37iz.r-16y2uox.r-1qd0xha.r-a023e6.r-vw2c0b.r-1777fci.r-eljoum.r-dnmrzs.r-bcqeeo.r-q4m81j.r-qvutc0'
+    await page.click(status);
     await page.waitFor(1000 * 12)
     data['success'] = true
 
@@ -64,29 +63,12 @@ async function tweet (userID, pwd, tweetText) {
     data['success'] = false
     await browser.close()
     console.log(e)
-    throw new Error('Failed to tweet..')
+    throw new Error('Failed to comment..')
   }
 }
 
 
-function getTweetMsg(task){
-    let variables = task.variables
-    for(let i=0; i < variables.length; i++){
-        if(variables[i].name==='tweet_msg'){
-            return variables[i].value
-        }
-    }
-}
-function getData(task){
-  let variables = task.variables
-  for(let i=0; i < variables.length; i++){
-      if(variables[i].name==='data'){
-          return variables[i].value
-      }
-  }
-}
+
 module.exports = {
-  tweet,
-  getTweetMsg,
-  getData,
+  commentTweet
 }
