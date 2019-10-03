@@ -47,6 +47,8 @@ async function unfollow (userID, pwd,unfollowId) {
     await page.waitFor(1000)
     await page.click(unfollow_button);
     await browser.close()
+    data['success']=true
+    return data
 
     } catch (e) {
     data['success'] = false

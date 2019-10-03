@@ -120,16 +120,17 @@ function startMicroservice() {
                         })
                 }
             }
+
         } else if(req.msg.startsWith('/retweet')){
             
             cb(null, true)
             if(!auth || !auth.username || !auth.password){
                 sendReply(errmsg.LEVELERR, req)
             }else {
-                let tweet_statusId = req.msg.substr('/retweet '.length).trim()
+                let tweet_statusId = req.msg.substr('/retweet'.length).trim()
                 retweet.reTweet(auth.username,auth.password,tweet_statusId)
                 .then((result)=>{
-                    if(result && result.sucess)
+                    if(result && result.success)
                         sendReply("Retweeted successfully.",req)
                     else
                         sendReply('Retweet failed.',req)
@@ -145,10 +146,10 @@ function startMicroservice() {
             if(!auth || !auth.username || !auth.password){
                 sendReply(errmsg.LEVELERR, req)
             }else {
-                let like_statusId = req.msg.substr('/like '.length).trim()
+                let like_statusId = req.msg.substr('/like'.length).trim()
                 like.likeButton(auth.username,auth.password,like_statusId)
                     .then((result)=>{
-                        if(result && result.sucess)
+                        if(result && result.success)
                             sendReply("Liked successfully.",req)
                         else
                             sendReply('Like failed.',req)
@@ -158,22 +159,17 @@ function startMicroservice() {
                         sendReply('Like failed..',req)
                     })
                 }
-        } else{
-            cb()
-        }
-        
-        
-            
-            if(msg.startsWith('/comment')){
+        }else if(req.msg.startsWith('/comment')){
                 cb(null, true)
+                if(!auth || !auth.username || !auth.password){
+                    sendReply(errmsg.LEVELERR, req)
+                }else {
                 let  x= req.msg.substr('/comment'.length).trim()
                 let status_Id=x.substr(0,x.indexOf(' '))
                 let tweet_comment=x.substr(x.indexOf(' ')+1);
-
-                
                 comment.commentTweet(auth.username,auth.password,status_Id,tweet_comment)
                     .then((result)=>{
-                        if(result && result.sucess)
+                        if(result && result.success)
                             sendReply("Commented tweet successfully.",req)
                         else
                             sendReply('Comment failed.',req)
@@ -183,28 +179,16 @@ function startMicroservice() {
                         sendReply('failed..',req)
                     })
                 }
-            if(msg.startsWith('/like')){
+                
+        }else if(req.msg.startsWith('/following')){
                 cb(null, true)
-                let like_statusId = req.msg.substr('/like '.length).trim()
-                like.likeButton(auth.username,auth.password,like_statusId)
-                    .then((result)=>{
-                        if(result && result.sucess)
-                            sendReply("Liked successfully.",req)
-                        else
-                            sendReply('Like failed.',req)
-                    })
-                    .catch((err) =>{
-                        u.showErr(err)
-                        sendReply('Like failed..',req)
-                    })
-
-            }
-            if(msg.startsWith('/follow')){
-                cb(null, true)
-                let follow_Id = req.msg.substr('/follow'.length).trim()
+                if(!auth || !auth.username || !auth.password){
+                    sendReply(errmsg.LEVELERR, req)
+                }else {
+                let follow_Id = req.msg.substr('/following'.length).trim()
                 follow.follow(auth.username,auth.password,follow_Id)
                     .then((result)=>{
-                        if(result && result.sucess)
+                        if(result && result.success)
                             sendReply("Followed successfully.",req)
                         else
                             sendReply('Follow failed.',req)
@@ -213,14 +197,17 @@ function startMicroservice() {
                         u.showErr(err)
                         sendReply('Follow failed..',req)
                     })
-
-            }
-            if(msg.startsWith('/unfollow')){
+                }
+            
+        }else if(req.msg.startsWith('/unfollowing')){
                 cb(null, true)
-                let unfollow_Id = req.msg.substr('/unfollow '.length).trim()
-                unfollow.follow(auth.username,auth.password,unfollow_Id)
+                if(!auth || !auth.username || !auth.password){
+                    sendReply(errmsg.LEVELERR, req)
+                }else {
+                let unfollow_Id = req.msg.substr('/unfollowing'.length).trim()
+                unfollow.unfollow(auth.username,auth.password,unfollow_Id)
                     .then((result)=>{
-                        if(result && result.sucess)
+                        if(result && result.success)
                             sendReply("Unfollowed successfully.",req)
                         else
                             sendReply('Unfollow failed.',req)
@@ -231,6 +218,7 @@ function startMicroservice() {
                     })
 
                 }
+            }
             else{
                 cb()
             }
@@ -333,8 +321,8 @@ function registerWithCommMgr() {
             {cmd: '/retweet', txt: 'For retweet'},
             {cmd: '/comment', txt: 'For commenting a tweet'},
             {cmd: '/like', txt: 'For like a tweet'},
-            {cmd: '/follow', txt: 'For following '},
-            {cmd: '/unfollow', txt: 'For unfollowing '},
+            {cmd: '/following', txt: 'For following '},
+            {cmd: '/unfollowing', txt: 'For unfollowing '},
         ],
     }, (err) => {
         if(err) u.showErr(err)
