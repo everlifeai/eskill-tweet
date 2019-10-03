@@ -39,6 +39,8 @@ async function follow (userID, pwd,followId) {
     await page.waitForSelector(follow_people)
     await page.click(follow_people)
     await browser.close()
+    data['success']=true
+    return data
 
 
     } catch (e) {
