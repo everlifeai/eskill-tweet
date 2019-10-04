@@ -10,7 +10,10 @@ const puppeteer = require('puppeteer')
 async function reTweet (userID, pwd,tweetstatusId) {
   let data = {}
 
-  let browser = await puppeteer.launch({ headless: true, slowMo: 100, args: ['--no-sandbox'] })
+  let browser = await puppeteer.launch({ headless: true, slowMo: 100, args: [
+    '--proxy-server="direct://"',
+    '--proxy-bypass-list=*'
+  ] })
   let page = await browser.newPage()
   try {
     await page.setViewport({ width: 1920, height: 1080 })
