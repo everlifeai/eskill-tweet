@@ -1,4 +1,6 @@
 const puppeteer = require('puppeteer')
+var os = require("os")
+
 /**
  *      /outcome
  * Tweet given text and returns tweet id
@@ -7,10 +9,11 @@ const puppeteer = require('puppeteer')
  * @param {*} tweetText 
  */
 async function tweet (userID, pwd, tweetText) {
+  
   let data = {}
-
-  let browser = await puppeteer.launch({ headless: true, slowMo: 100, args: ['--no-sandbox'] })
+  let browser = await getBrowser()	
   let page = await browser.newPage()
+  
   try {
     await page.setViewport({ width: 1920, height: 1080 })
     await page.goto('https://twitter.com/login')
@@ -67,7 +70,23 @@ async function tweet (userID, pwd, tweetText) {
     throw new Error('Failed to tweet..')
   }
 }
-
+// Basically function identifies OS type & Version and check whether OS is Windows 7 or not.   		
+function windows7_check(){		
+  		
+  var os_type = os.type()  		
+  var os_version = os.release()		
+  		
+  // Convert variable os_version (from string to float) and takes first 3 digits for detecting OS.		
+  let version_number= parseFloat(os_version.slice(0,3))		
+  		
+  const os_data = {"Operating System": os_type , "Version" : version_number }		
+   		
+// Table of various windows operating systems : 		
+// https://docs.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-osversioninfoexw#remarks    		
+// From above table we can know Version number of Windows 7 is '6.1'. 		
+if (os_data.Version === 6.1)		
+    return true		
+}
 
 function getTweetMsg(task){
     let variables = task.variables
@@ -85,8 +104,20 @@ function getData(task){
       }
   }
 }
+
+async function getBrowser(){		
+  // Often when running on Windows 7,headless mode ignores the default proxy which will lead to Navigation Timeout Errors.  		
+  // So For Windows 7 we are explicity bypassing all proxies. And for other operating systems,we are using no sandbox environment.		
+  // You can find the details of issue on the following link : https://github.com/GoogleChrome/puppeteer/issues/2613  		
+  if (windows7_check())		
+    return browser = await puppeteer.launch({ headless: true, slowMo: 100, args: [ '--proxy-server="direct://"', '--proxy-bypass-list=*']})  		
+  else		
+    return browser = await puppeteer.launch({ headless: true, slowMo: 100, args: ['--no-sandbox'] })		
+}
+
 module.exports = {
   tweet,
   getTweetMsg,
   getData,
+  getBrowser
 }

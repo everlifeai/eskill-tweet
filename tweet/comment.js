@@ -1,4 +1,6 @@
 const puppeteer = require('puppeteer')
+let util = require("./../util")
+
 /**
  *      /outcome
  * Tweet given comment and returns comment id
@@ -9,9 +11,9 @@ const puppeteer = require('puppeteer')
  */
 async function commentTweet (userID, pwd,statusId,tweetComment) {
   let data = {}
-
-  let browser = await puppeteer.launch({ headless: true, slowMo: 100, args: ['--no-sandbox'] })
+  let browser = await util.getBrowser() 
   let page = await browser.newPage()
+  
   try {
     await page.setViewport({ width: 1920, height: 1080 })
     await page.goto('https://twitter.com/login')
