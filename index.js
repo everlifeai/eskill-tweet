@@ -99,6 +99,7 @@ function startMicroservice() {
     svc.on('msg', (req, cb) => {
         if(!req.msg) return cb()
         if(req.msg.startsWith('/tweet')){
+            cb(null, true)	
             if(!auth || !auth.username || !auth.password){
                 sendReply(errmsg.LEVELERR, req)
             } 
