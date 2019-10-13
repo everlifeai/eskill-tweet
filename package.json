@@ -1,18 +1,29 @@
 {
   "name": "eskill-tweet",
-  "version": "1.0.1",
-  "description": "",
+  "version": "1.1.1",
+  "description": "A Twitter Job Skill",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "cote": "0.19.1",
-    "elife-utils": "everlifeai/elife-utils",
-    "puppeteer": "^0.13.0"
+    "cote": "^0.21.1",
+    "elife-utils": "github:everlifeai/elife-utils",
+    "puppeteer": "^1.20.0"
   },
   "metaData": {
     "authRequired": true,
     "msg": "Enter your twitter credientials"
-  }
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/everlifeai/eskill-tweet.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/everlifeai/eskill-tweet/issues"
+  },
+  "homepage": "https://github.com/everlifeai/eskill-tweet#readme"
 }
