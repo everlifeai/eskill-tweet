@@ -1,5 +1,6 @@
 const puppeteer = require('puppeteer')
 var os = require("os")
+const fs = require('fs').promises;
 
 /**
  *      /outcome
@@ -16,23 +17,13 @@ async function tweet (userID, pwd, tweetText) {
   
   try {
     await page.setViewport({ width: 1920, height: 1080 })
-    await page.goto('https://twitter.com/login')
-   
-    // For fetching username
-    const mainInput = 'input.js-username-field.email-input.js-initial-focus'
-    await page.waitForSelector(mainInput, { timeout: 300000 })
-    await page.type(mainInput, userID)
-
-    // For fetching password
-    const passInput = 'input.js-password-field'
-    await page.waitForSelector(passInput, { timeout: 300000 })
-    await page.type(passInput, pwd)
-
-    // To click login button
-    const submitButton = 'button.submit.EdgeButton.EdgeButton--primary.EdgeButtom--medium'
-    await page.waitForSelector(submitButton)
-    await page.click(submitButton)
-    await page.waitFor(1000 * 12)
+    
+    // Logging in and Checking Cookies
+    let loggedin = await cookie_login(page)
+    if(!loggedin) {
+    await auth_login(userID, pwd, page)
+    await save_login_cookie(page)
+    }
 
     // For clicking tweetbox
 
@@ -105,6 +96,44 @@ function getData(task){
   }
 }
 
+async function cookie_login(page) {
+  try {
+      let cookie_s = await fs.readFile('./cookies.json')
+      let cookies = JSON.parse(cookie_s)
+      await page.setCookie(...cookies)
+      await page.goto('https://twitter.com/home')
+      await page.waitFor('div.css-1dbjc4n.r-16y2uox.r-1wbh5a2.r-1pi2tsx.r-1777fci')
+      return true
+    }catch(e) {
+      return false
+    }
+  }
+  
+async function save_login_cookie(page) {
+  try {
+  const cookies = await page.cookies();
+  await fs.writeFile('./cookies.json', JSON.stringify(cookies, null, 2))
+  }catch(e) {
+    console.error(e.message)
+  }
+}
+  
+async function auth_login(userID, pwd, page) {
+  
+  await page.setViewport({ width: 1920, height: 1080 })
+  await page.goto('https://twitter.com/login',{"waitUntil" : "networkidle0"})
+  
+  // Entering Credentials
+  await page.type("[name='session[username_or_email]'",userID)
+  await page.type("[name='session[password]'", pwd)
+  
+  // To click login button
+  const submitButton = 'div.css-901oao.r-1awozwy.r-jwli3a.r-6koalj.r-18u37iz.r-16y2uox.r-1qd0xha.r-a023e6.r-vw2c0b.r-1777fci.r-eljoum.r-dnmrzs.r-bcqeeo.r-q4m81j.r-qvutc0'
+  await page.waitForSelector(submitButton)
+  await page.click(submitButton)
+  await page.waitFor('div.css-1dbjc4n.r-16y2uox.r-1wbh5a2.r-1pi2tsx.r-1777fci')
+}
+
 async function getBrowser(){		
   // Often when running on Windows 7,headless mode ignores the default proxy which will lead to Navigation Timeout Errors.  		
   // So For Windows 7 we are explicity bypassing all proxies. And for other operating systems,we are using no sandbox environment.		
@@ -119,5 +148,8 @@ module.exports = {
   tweet,
   getTweetMsg,
   getData,
-  getBrowser
+  getBrowser,
+  save_login_cookie,
+  auth_login,
+  cookie_login
 }
