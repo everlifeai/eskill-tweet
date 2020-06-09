@@ -15,23 +15,11 @@ async function commentTweet (userID, pwd,statusId,tweetComment) {
   
   try {
     await page.setViewport({ width: 1920, height: 1080 })
-    await page.goto('https://twitter.com/login')
-   
-    // For fetching username
-    const mainInput = 'input.js-username-field.email-input.js-initial-focus'
-    await page.waitForSelector(mainInput, { timeout: 300000 })
-    await page.type(mainInput, userID)
-
-    // For fetching password
-    const passInput = 'input.js-password-field'
-    await page.waitForSelector(passInput, { timeout: 300000 })
-    await page.type(passInput, pwd)
-
-    // To click login button
-    const submitButton = 'button.submit.EdgeButton.EdgeButton--primary.EdgeButtom--medium'
-    await page.waitForSelector(submitButton)
-    await page.click(submitButton)
-    await page.waitFor(1000 * 12)
+    let loggedin = await util.cookie_login(page)
+    if(!loggedin) {
+    await util.auth_login(userID, pwd, page)
+    await util.save_login_cookie(page)
+    }
    
     //for adding a comment
     await page.goto(statusId)
